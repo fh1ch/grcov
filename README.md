@@ -116,7 +116,8 @@ OPTIONS:
             - *ade* for the ActiveData-ETL specific format;
             - *cobertura* for a cobertura coverage report;
             - *files* to only return a list of files.
-             [default: lcov]  [possible values: ade, lcov, coveralls, coveralls+, files, covdir, html, cobertura]
+            - *summary* to print a coverage summary.
+             [default: lcov]  [possible values: ade, lcov, coveralls, coveralls+, files, covdir, html, cobertura, summary]
         --path-mapping <PATH>...
 
 

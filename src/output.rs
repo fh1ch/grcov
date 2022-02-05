@@ -411,6 +411,14 @@ fn get_coveralls_git_info(commit_sha: &str, vcs_branch: &str) -> Value {
     })
 }
 
+fn get_percentage(hit: usize, count: usize) -> f32 {
+    let result = hit as f32 / count as f32 * 100.0;
+    if result.is_nan() {
+        return 0.0;
+    }
+    return result;
+}
+
 pub fn output_coveralls(
     results: CovResultIter,
     repo_token: Option<&str>,
@@ -583,6 +591,30 @@ pub fn output_html(
     }
 
     html::gen_coverage_json(&global.stats, &config, &output);
+}
+
+pub fn output_summary(results: CovResultIter) {
+    let mut function_count = 0;
+    let mut function_hit = 0;
+    let mut line_count = 0;
+    let mut line_hit = 0;
+    let mut branch_count = 0;
+    let mut branch_hit = 0;
+  
+    for (_, _, result) in results {
+        function_count += result.functions.len();
+        function_hit += result.functions.iter().filter(|(_, f)| f.executed).count();
+        line_count += result.lines.values().count();
+        line_hit += result.lines.values().filter(|&l| *l > 0).count();
+        branch_count += result.branches.values().count();
+        branch_hit += result.branches.values().filter(|b| b.iter().any(|h| *h)).count();
+    }
+  
+    println!("=============================== Coverage summary ===============================");
+    println!("Branches     : {:.2}% ( {}/{} )", get_percentage(branch_hit, branch_count), branch_hit, branch_count);
+    println!("Functions    : {:.2}% ( {}/{} )", get_percentage(function_hit, function_count), function_hit, function_count);
+    println!("Lines        : {:.2}% ( {}/{} )", get_percentage(line_hit, line_count), line_hit, line_count);
+    println!("================================================================================");
 }
 
 #[cfg(test)]
